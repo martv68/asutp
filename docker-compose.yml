@@ -1,0 +1,28 @@
+# Стенд БДЗ: OPC UA сервер и клиент в изолированной сети ics (172.28.0.0/24).
+services:
+  opcua-server:
+    build: ./server
+    container_name: opcua-server
+    ports:
+      - "4840:4840"          # доступ с хоста, например из UaExpert
+    networks:
+      ics:
+        ipv4_address: 172.28.0.10
+
+  opcua-client:
+    build: ./client
+    container_name: opcua-client
+    depends_on:
+      - opcua-server
+    environment:
+      OPCUA_URL: opc.tcp://opcua-server:4840/
+      CYCLE_PAUSE: "5"       # пауза между циклами сценария, с
+    networks:
+      ics:
+        ipv4_address: 172.28.0.20
+
+networks:
+  ics:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
