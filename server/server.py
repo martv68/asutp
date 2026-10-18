@@ -117,4 +117,5 @@ if __name__ == "__main__":
     net_log.addHandler(handler)
     net_log.propagate = False
     logging.basicConfig(level=logging.ERROR)
+    logging.getLogger("asyncua.server.uaprocessor").addFilter(lambda r: "BadNoSubscription" not in r.getMessage())
     asyncio.run(Stand().run())
