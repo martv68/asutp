@@ -3,4 +3,4 @@ RUN pip install --no-cache-dir asyncua==2.1.0
 WORKDIR /app
 COPY client.py .
 ENV PYTHONUNBUFFERED=1
-CMD ["python", "client.py"]
+CMD ["sleep", "infinity"]

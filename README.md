@@ -5,7 +5,7 @@
 | Контейнер      | IP          | Что делает |
 |----------------|-------------|------------|
 | `opcua-server` | 172.28.0.10 | OPC UA сервер (asyncua), `opc.tcp://:4840`, SecurityPolicy None, анонимный доступ. Объект `Device`: `Counter` (растёт сам), `Setpoint`, `Enabled` (пишет клиент), метод `Reset()`. Печатает все обращения клиента. |
-| `opcua-client` | 172.28.0.20 | OPC UA клиент (asyncua). Каждые 5 с: GetEndpoints → сеанс → Browse → Read → Write → Call → подписка на `Counter` → закрытие. Печатает запросы (`->`) и ответы (`<-`). |
+| `opcua-client` | 172.28.0.20 | OPC UA клиент (asyncua). Консоль с постоянным сеансом: каждая команда — свой запрос (Browse, Read, Write, Call, подписка). Режим `--auto` — циклический сценарий без ввода. Печатает запросы (`->`) и ответы (`<-`). |
 
 Режим None выбран намеренно: в нём содержимое сообщений доступно Suricata.
 
@@ -17,10 +17,31 @@
 ## Запуск
 
 ```sh
-docker compose up --build          # сборка и запуск, логи обоих контейнеров в консоли
+docker compose up --build          # сборка и запуск; в консоли лог сервера
 ```
 
-Трафик в Wireshark в реальном времени (во втором терминале):
+Клиент (во втором терминале):
+
+```sh
+docker compose exec opcua-client python client.py          # консоль, команды — help
+docker compose exec opcua-client python client.py --auto   # циклический сценарий
+```
+
+Пример сеанса:
+
+```
+opcua> connect
+opcua> browse
+opcua> read Counter
+opcua> write Setpoint 42.5
+opcua> write Counter 5          # сервер ответит BadUserAccessDenied
+opcua> call Reset
+opcua> sub Counter
+opcua> unsub
+opcua> disconnect
+```
+
+Трафик в Wireshark в реальном времени (в третьем терминале):
 
 - macOS / Linux: `./capture.sh`
 - Windows: `capture.cmd` — запускать из **cmd.exe**, не из PowerShell.
@@ -28,10 +49,10 @@ docker compose up --build          # сборка и запуск, логи об
 Скрипт запускает контейнер с tcpdump в сетевом пространстве сервера и передаёт поток в Wireshark.
 Wireshark разбирает порт 4840 как OPC UA; фильтр отображения: `opcua`.
 
-Остановка: `Ctrl+C`, затем `docker compose down`.
+Остановка: `quit` в клиенте, `Ctrl+C` в терминале сервера, затем `docker compose down`.
 
 ## Полезное
 
-- Логи по отдельности: `docker compose logs -f opcua-server`, `docker compose logs -f opcua-client`.
+- Лог сервера отдельно: `docker compose logs -f opcua-server`.
 - Сервер доступен с хоста на `opc.tcp://localhost:4840/` (например, для UaExpert).
-- Пауза между циклами клиента: `CYCLE_PAUSE` в `docker-compose.yml`.
+- Пауза между циклами режима `--auto`: `CYCLE_PAUSE` в `docker-compose.yml`.

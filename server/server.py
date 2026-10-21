@@ -1,11 +1,3 @@
-"""OPC UA сервер стенда БДЗ.
-
-Режим безопасности None, анонимный доступ, порт 4840.
-Адресное пространство: объект Device с переменными Counter (меняется сам),
-Setpoint и Enabled (запись клиентом) и методом Reset.
-Каждое обращение клиента печатается в консоль.
-"""
-
 import asyncio
 import logging
 import os
@@ -31,8 +23,6 @@ class Stand:
     def name(self, node_id: ua.NodeId) -> str:
         return self.names.get(node_id, node_id.to_string())
 
-    # --- обработчики обращений клиента -----------------------------------
-
     def on_read(self, event, _dispatcher) -> None:
         if not event.is_external:
             return
@@ -49,8 +39,6 @@ class Stand:
     def on_subscribe(self, event, _dispatcher) -> None:
         for item in event.request_params.ItemsToCreate:
             log("<-", f"Subscribe {self.name(item.ItemToMonitor.NodeId)}")
-
-    # --- запуск ------------------------------------------------------------
 
     async def run(self) -> None:
         s = self.server
@@ -95,7 +83,6 @@ class Stand:
 
 
 class ConnectionLog(logging.Filter):
-    """Оставляет из логов asyncua только подключения и отключения клиентов."""
 
     def filter(self, record: logging.LogRecord) -> bool:
         msg = record.getMessage()
