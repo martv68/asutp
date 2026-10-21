@@ -31,7 +31,7 @@
 
 ## Требования
 
-- Docker Desktop (на Windows — с бэкендом WSL2);
+- Docker Desktop;
 - Wireshark.
 
 ## Запуск
