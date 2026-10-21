@@ -16,7 +16,7 @@ services:
       - opcua-server
     environment:
       OPCUA_URL: opc.tcp://opcua-server:4840/
-      CYCLE_PAUSE: "5"       # пауза между циклами сценария, с
+      CYCLE_PAUSE: "30"       # пауза между циклами сценария, с
     networks:
       ics:
         ipv4_address: 172.28.0.20
