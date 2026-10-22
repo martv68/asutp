@@ -1,3 +1,6 @@
 __pycache__/
 *.pcap
 *.pcapng
+
+# собранные PDF отчётов БДЗ (итоговые копии лежат в Dropbox)
+report/**/*.pdf
